@@ -1,0 +1,40 @@
+name: controle-vacinacao-api
+
+services:
+  db:
+    image: postgres:16
+    container_name: controle-vacinacao-db
+    restart: always
+    env_file: ./.env
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d ${DB_NAME} -U ${DB_USER}" ]
+      interval: 5s      
+      timeout: 5s       
+      retries: 5        
+      start_period: 20s 
+
+  api:
+    container_name: controle-vacinacao-app
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file: ./.env
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+        
+    command: npm run dev
+
+volumes:
+  postgres_data:
+    driver: local
