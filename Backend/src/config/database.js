@@ -1,31 +1,36 @@
-require('dotenv').config();
+// src/config/database.js
+
+require('dotenv').config(); // Carrega as variáveis de ambiente do arquivo .env
 
 module.exports = {
   development: {
     username: process.env.DB_USER,
-    password: process.env.DB_PASS,
+    password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    host: process.env.DB_HOST, 
-    port: process.env.DB_PORT,
-    dialect: process.env.DB_DIALECT,
+    host: process.env.DB_HOST,
+    dialect: 'postgres', // <--- ESSA É A LINHA QUE FALTAVA!
     dialectOptions: {
-      ssl: false, // Se precisar de SSL, configure aqui
+      ssl: process.env.DB_SSL === 'true' ? { require: true, rejectUnauthorized: false } : false,
     },
   },
-  test: { //
+  test: {
     username: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: `${process.env.DB_NAME}_test`,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME_TEST, // Geralmente um banco de dados separado para testes
     host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    dialect: process.env.DB_DIALECT,
+    dialect: 'postgres',
+    dialectOptions: {
+      ssl: process.env.DB_SSL === 'true' ? { require: true, rejectUnauthorized: false } : false,
+    },
   },
   production: {
-    username: process.env.DB_PROD_USER, 
-    password: process.env.DB_PROD_PASS,
-    database: process.env.DB_PROD_NAME,
-    host: process.env.DB_PROD_HOST,
-    port: process.env.DB_PROD_PORT,
-    dialect: process.env.DB_DIALECT,
+    username: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    host: process.env.DB_HOST,
+    dialect: 'postgres',
+    dialectOptions: {
+      ssl: process.env.DB_SSL === 'true' ? { require: true, rejectUnauthorized: false } : false,
+    },
   },
 };
