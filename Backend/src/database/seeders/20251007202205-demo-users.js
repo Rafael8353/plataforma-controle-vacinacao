@@ -1,5 +1,8 @@
 'use strict';
 
+const { v4: uuidv4 } = require('uuid');
+const bcrypt = require('bcryptjs');
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
 
@@ -8,24 +11,38 @@ module.exports = {
    * 
    */
   async up (queryInterface, Sequelize) {
+
+    const saltRounds = 10;
+
     await queryInterface.bulkInsert('users', [  
-      {
-        name: 'John Doe',
+      { // user 1 -> paciente
+        id: uuidv4(),
+        name: 'Ricardo S', 
+        email: 'rica.die@example.com',
+        cpf: '33122233355', 
+        birth_date: new Date('1990-01-15'),
+        phone_number: '88997731130',
+        password_hash: await bcrypt.hash('', saltRounds),
+        sus_card_number: "1234567",
+        role: 'patient', // 'patient' ou 'health_professional'
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      { // user 2 -> profisional de saude
+        id: uuidv4(),
+        name: 'john Dee', 
         email: 'john.doe@example.com',
-        created_at: new Date(),
-        updated_at: new Date(),
-        //
-      },
-      {
-        name: 'Jane Smith',
-        email: 'jane.smith@example.com',
-        created_at: new Date(),
-        updated_at: new Date(),
-        //
-      },
-    
-      // adicione quantos users quiser para teste
+        cpf: '11122233355', 
+        birth_date: new Date('1990-01-15'),
+        phone_number: '51997631130',
+        password_hash: await bcrypt.hash('', saltRounds),
+        professional_register: "0000333",
+        role: 'health_professional', 
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
       
+      // adicione quantos users quiser para teste
     ], {});
   },
 

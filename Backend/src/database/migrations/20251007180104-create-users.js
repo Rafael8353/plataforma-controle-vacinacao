@@ -1,15 +1,15 @@
-// src/database/migrations/xxxxxxxx-create-users.js
 'use strict';
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Users', {
+    await queryInterface.createTable('users', {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID, // Usando UUID
         defaultValue: Sequelize.UUIDV4,
       },
-      full_name: {
+      name: {
         type: Sequelize.STRING,
         allowNull: false,
       },
@@ -33,15 +33,20 @@ module.exports = {
       },
       phone_number: {
         type: Sequelize.STRING(20),
-        allowNull: true,
+        allowNull: false,
       },
       role: {
-        type: Sequelize.STRING(50),
+        type: Sequelize.ENUM('patient', 'health_professional'),
         allowNull: false,
       },
       professional_register: {
         type: Sequelize.STRING(50),
         allowNull: true,
+      },
+      sus_card_number: {
+        type: Sequelize.STRING(15),
+        allowNull: true,
+        unique: true,
       },
       createdAt: {
         allowNull: false,
@@ -53,7 +58,8 @@ module.exports = {
       }
     });
   },
+
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Users');
+    await queryInterface.dropTable('users');
   }
 };

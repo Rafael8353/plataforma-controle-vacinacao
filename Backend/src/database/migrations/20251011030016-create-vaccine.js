@@ -1,8 +1,8 @@
-// src/database/migrations/xxxxxxxx-create-vaccine.js
 'use strict';
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('Vaccines', {
+    await queryInterface.createTable('vaccines', {
       id: {
         allowNull: false,
         primaryKey: true,
@@ -37,7 +37,8 @@ module.exports = {
       }
     });
   },
+
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('Vaccines');
+    await queryInterface.dropTable('vaccines');
   }
 };

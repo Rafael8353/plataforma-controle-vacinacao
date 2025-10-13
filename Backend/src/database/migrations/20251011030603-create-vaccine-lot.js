@@ -1,19 +1,18 @@
-// src/database/migrations/xxxxxxxx-create-vaccine-lot.js
 'use strict';
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('VaccineLots', {
+    await queryInterface.createTable('vaccineLots', {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      // Chave Estrangeira para Vaccine
       vaccine_id: {
         type: Sequelize.UUID,
         allowNull: false,
-        references: { model: 'Vaccines', key: 'id' },
+        references: { model: 'vaccines', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'RESTRICT', // Não deixa apagar a vacina se houver lotes
       },
@@ -47,7 +46,8 @@ module.exports = {
       }
     });
   },
+
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('VaccineLots');
+    await queryInterface.dropTable('vaccineLots');
   }
 };

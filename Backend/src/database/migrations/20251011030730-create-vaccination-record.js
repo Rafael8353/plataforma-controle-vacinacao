@@ -1,8 +1,8 @@
-// src/database/migrations/xxxxxxxx-create-vaccination-record.js
 'use strict';
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('VaccinationRecords', {
+    await queryInterface.createTable('vaccinationRecords', {
       id: {
         allowNull: false,
         primaryKey: true,
@@ -12,21 +12,21 @@ module.exports = {
       patient_id: {
         type: Sequelize.UUID,
         allowNull: false,
-        references: { model: 'Users', key: 'id' },
+        references: { model: 'users', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
       professional_id: {
         type: Sequelize.UUID,
         allowNull: false,
-        references: { model: 'Users', key: 'id' },
+        references: { model: 'users', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'RESTRICT',
       },
       vaccine_lot_id: {
         type: Sequelize.UUID,
         allowNull: false,
-        references: { model: 'VaccineLots', key: 'id' },
+        references: { model: 'vaccineLots', key: 'id' },
         onUpdate: 'CASCADE',
         onDelete: 'RESTRICT',
       },
@@ -44,15 +44,14 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       },
-      // O seu SQL não tem `updatedAt`, mas é uma boa prática ter.
-      // Se não quiser, pode remover.
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
       }
     });
   },
+
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.dropTable('VaccinationRecords');
+    await queryInterface.dropTable('vaccinationRecords');
   }
 };
