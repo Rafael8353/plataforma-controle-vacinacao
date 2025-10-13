@@ -1,36 +1,31 @@
-// src/config/database.js
-
-require('dotenv').config(); // Carrega as variáveis de ambiente do arquivo .env
+require('dotenv').config();
 
 module.exports = {
   development: {
     username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
+    password: process.env.DB_PASS,
     database: process.env.DB_NAME,
-    host: process.env.DB_HOST,
-    dialect: 'postgres', // <--- ESSA É A LINHA QUE FALTAVA!
+    host: process.env.DB_HOST, 
+    port: process.env.DB_PORT,
+    dialect: process.env.DB_DIALECT,
     dialectOptions: {
-      ssl: process.env.DB_SSL === 'true' ? { require: true, rejectUnauthorized: false } : false,
+      ssl: false, 
     },
   },
-  test: {
+  test: { //
     username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME_TEST, // Geralmente um banco de dados separado para testes
+    password: process.env.DB_PASS,
+    database: `${process.env.DB_NAME}_test`,
     host: process.env.DB_HOST,
-    dialect: 'postgres',
-    dialectOptions: {
-      ssl: process.env.DB_SSL === 'true' ? { require: true, rejectUnauthorized: false } : false,
-    },
+    port: process.env.DB_PORT,
+    dialect: process.env.DB_DIALECT,
   },
   production: {
-    username: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    host: process.env.DB_HOST,
-    dialect: 'postgres',
-    dialectOptions: {
-      ssl: process.env.DB_SSL === 'true' ? { require: true, rejectUnauthorized: false } : false,
-    },
+    username: process.env.DB_PROD_USER, 
+    password: process.env.DB_PROD_PASS,
+    database: process.env.DB_PROD_NAME,
+    host: process.env.DB_PROD_HOST,
+    port: process.env.DB_PROD_PORT,
+    dialect: process.env.DB_DIALECT,
   },
 };
