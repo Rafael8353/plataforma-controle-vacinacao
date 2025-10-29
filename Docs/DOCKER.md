@@ -1,14 +1,23 @@
 # Docker
+⬅️ **[Voltar para README.md](../README.md)**
 
 Comandos úteis para o Docker
 
-**Parar e remover os contarineres:**
 
 ```bash
-## esse comando n apaga os dados do banco
+# Iniciar todos os serviços
+docker-compose up -d
+
+# Parar todos os serviços
 docker-compose down
 
-# esse comando alem de parar e remover, apaga os dados do banco
+# Ver logs da aplicação
+docker-compose logs app
+
+# Reconstruir containers
+docker-compose up --build
+
+# Limpar volumes (cuidado: remove dados do banco)
 docker-compose down -v
 ```
 
