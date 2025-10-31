@@ -10,7 +10,7 @@ module.exports = {
    * Insere lista de usuarios de exemplo na tabela
    * 
    */
-  async up (queryInterface, Sequelize) {
+  async up (queryInterface) {
 
     const saltRounds = 10;
 
@@ -50,7 +50,7 @@ module.exports = {
    * Remove todos os registros da tabela
    * 
    */
-  async down (queryInterface, Sequelize) {
+  async down (queryInterface) {
     await queryInterface.bulkDelete('users', null, {});
   }
 };

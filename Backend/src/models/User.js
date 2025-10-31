@@ -69,7 +69,7 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'User',
     hooks: {
-       beforeValidate: (user, options) => {
+       beforeValidate: (user) => {
           if (user.role === 'health_professional') {
             if (!user.professional_register) {
               throw new Error('O registro profissional é obrigatório para profissionais de saúde.');
