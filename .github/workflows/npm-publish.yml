@@ -20,6 +20,7 @@ jobs:
           node-version: 20
 
       - name: Install dependencies
+        working-directory: ./Backend
         run: npm ci
 
       - name: Lint code
