@@ -19,16 +19,16 @@ const userController = {
         professional_register
       } = req.body;
 
-      if (!role || (role !== 'paciente' && role !== 'profissional_saude')) {
+      if (!role || (role !== 'patient' && role !== 'health_professional')) {
         return res.status(400).json({ message: 'Role é inválido ou não foi fornecido.' });
       }
       if (!nomeCompleto || !dataNascimento || !cpf || !email || !password || !telefone) {
         return res.status(422).json({ message: 'Todos os campos base são obrigatórios.' });
       }
-      if (role === 'paciente' && !sus_card_number) {
+      if (role === 'patient' && !sus_card_number) {
         return res.status(400).json({ message: 'O campo sus_card_number é obrigatório para pacientes.' });
       }
-      if (role === 'profissional_saude' && !professional_register) {
+      if (role === 'health_professional' && !professional_register) {
         return res.status(400).json({ message: 'O campo professional_register é obrigatório para profissionais de saúde.' });
       }
 
@@ -45,16 +45,16 @@ const userController = {
       const hashedPassword = await bcrypt.hash(password, salt);
 
       const newUser = await User.create({
-        nomeCompleto,
-        dataNascimento,
-        cpf,
-        email,
-        password: hashedPassword,
-        telefone,
-        role,
-        sus_card_number: role === 'paciente' ? sus_card_number : null,
-        professional_register: role === 'profissional_saude' ? professional_register : null
-      });
+        name: nomeCompleto,             
+        birth_date: dataNascimento,     
+        cpf: cpf,
+        email: email,
+        password_hash: hashedPassword,  
+        phone_number: telefone,         
+        role: role,
+        sus_card_number: role === 'patient' ? sus_card_number : null,
+        professional_register: role === 'health_professional' ? professional_register : null
+    });
 
       const payload = {
         userId: newUser.id,

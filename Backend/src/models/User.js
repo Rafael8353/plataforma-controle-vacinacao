@@ -68,6 +68,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'User',
+    tableName: 'users',
     hooks: {
        beforeValidate: (user) => {
           if (user.role === 'health_professional') {
