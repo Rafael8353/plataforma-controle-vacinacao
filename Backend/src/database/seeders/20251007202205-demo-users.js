@@ -22,7 +22,7 @@ module.exports = {
         cpf: '33122233355', 
         birth_date: new Date('1990-01-15'),
         phone_number: '88997731130',
-        password_hash: await bcrypt.hash('', saltRounds),
+        password_hash: await bcrypt.hash('teste1', saltRounds),
         sus_card_number: "1234567",
         role: 'patient', // 'patient' ou 'health_professional'
         createdAt: new Date(),
@@ -35,7 +35,7 @@ module.exports = {
         cpf: '11122233355', 
         birth_date: new Date('1990-01-15'),
         phone_number: '51997631130',
-        password_hash: await bcrypt.hash('', saltRounds),
+        password_hash: await bcrypt.hash('teste2', saltRounds),
         professional_register: "0000333",
         role: 'health_professional', 
         createdAt: new Date(),
