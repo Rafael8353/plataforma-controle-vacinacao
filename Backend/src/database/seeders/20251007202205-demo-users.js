@@ -19,7 +19,7 @@ module.exports = {
         id: uuidv4(),
         name: 'Ricardo S', 
         email: 'rica.die@example.com',
-        cpf: '33122233355', 
+        cpf: '35122233355', 
         birth_date: new Date('1990-01-15'),
         phone_number: '88997731130',
         password_hash: await bcrypt.hash('teste1', saltRounds),
