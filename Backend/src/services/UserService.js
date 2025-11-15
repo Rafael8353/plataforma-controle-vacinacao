@@ -43,8 +43,46 @@ class UserService {
         return token;
     }
     
-   // aqui pode ter outros met
-    // async login(email, password) { ... }
+/**
+     * Autentica um usuário e retorna um token JWT
+     * * @param {string} email 
+     * @param {string} password 
+     * @returns {string} token
+     */
+        async login(identifier, password) {
+      
+
+        // 1. Tenta encontrar o usuário pelo e-mail
+        let user = await this.userRepository.findByEmail(identifier);
+
+        // 2. Se não encontrar por e-mail, tenta encontrar pelo CPF
+        if (!user) {
+            user = await this.userRepository.findByCpf(identifier);
+        }
+        
+        // 3. Se não encontrou de nenhuma forma, lança o erro
+        if (!user) {
+            // A mensagem de erro agora é genérica, como pedido
+            throw new Error('Credenciais inválidas.');
+        }
+
+        // 4. Verificar se a senha está correta
+        const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+
+        if (!isPasswordValid) {
+            throw new Error('Credenciais inválidas.');
+        }
+
+        // 5. Gerar o token
+        const tokenPayload = {
+            userId: user.id,
+            role: user.role
+        };
+
+        const token = JwtService.generateToken(tokenPayload, '1d');
+
+        return token;
+    }
 }
 
 module.exports = UserService;
