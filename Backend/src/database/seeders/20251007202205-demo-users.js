@@ -1,6 +1,5 @@
 'use strict';
 
-const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
 
 /** @type {import('sequelize-cli').Migration} */
@@ -12,6 +11,7 @@ module.exports = {
    */
   async up (queryInterface) {
 
+    const { v4: uuidv4 } = await import('uuid');
     const saltRounds = 10;
 
     await queryInterface.bulkInsert('users', [  
