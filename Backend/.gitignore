@@ -19,3 +19,4 @@ yarn-debug.log
 *.tmp
 *.swp
 
+*TODO.md
