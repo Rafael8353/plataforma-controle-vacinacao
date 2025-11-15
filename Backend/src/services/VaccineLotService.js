@@ -1,5 +1,5 @@
 // src/services/VaccineLotService.js
-const { Vaccine, VaccineLot } = require('../models'); // Importamos o Vaccine também
+const { Vaccine } = require('../models'); // Importamos o Vaccine também
 const { Op } = require('sequelize'); // Para filtros avançados (>, <, etc.)
 
 /**
