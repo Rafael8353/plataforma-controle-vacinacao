@@ -45,7 +45,7 @@ async function authMiddleware(req, res, next) {
 
         // Tudo certo, pode seguir para a próxima rota/middleware
         return next();
-    } catch (error) {
+    } catch (_error) {
         return res.status(401).json({ error: 'Token inválido ou expirado.' });
     }
 }
