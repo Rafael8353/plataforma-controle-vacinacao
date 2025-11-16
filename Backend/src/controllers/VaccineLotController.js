@@ -1,8 +1,3 @@
-// src/controllers/VaccineLotController.js
-
-/**
- * Controller para lidar com as requisições HTTP para Lotes de Vacinas.
- */
 class VaccineLotController {
     /**
      * @param {import('../services/VaccineLotService')} vaccineLotService
@@ -10,7 +5,6 @@ class VaccineLotController {
     constructor(vaccineLotService) {
         this.vaccineLotService = vaccineLotService;
 
-        // Garante que o 'this' está correto dentro dos métodos
         this.create = this.create.bind(this);
         this.list = this.list.bind(this);
         this.getById = this.getById.bind(this);
@@ -25,25 +19,22 @@ class VaccineLotController {
      */
     async create(req, res) {
         try {
-            // Os dados vêm do corpo da requisição
             const lotData = req.body;
             
-            // Validação básica de entrada
             const { vacina_id, numero_lote, data_validade, quantidade_doses_inicial } = lotData;
+            
             if (!vacina_id || !numero_lote || !data_validade || quantidade_doses_inicial === undefined) {
                 return res.status(400).json({ error: 'Campos obrigatórios ausentes: vacina_id, numero_lote, data_validade, quantidade_doses_inicial.' });
             }
 
             const newLot = await this.vaccineLotService.createLot(lotData);
             
-            // Sucesso: 201 Created
             return res.status(201).json(newLot);
         } catch (error) {
-            // Trata erros conhecidos (ex: Vacina não encontrada)
             if (error.message.includes('Vacina (vacina_id) não encontrada')) {
                 return res.status(400).json({ error: error.message });
             }
-            // Outros erros
+
             return res.status(500).json({ error: 'Erro ao criar o lote.', details: error.message });
         }
     }
@@ -56,7 +47,7 @@ class VaccineLotController {
     async list(req, res) {
         try {
             // Os filtros vêm da query string (req.query)
-            const filters = req.query; // ex: { disponivel: 'true', vacina_id: '1' }
+            const filters = req.query; 
             
             const lots = await this.vaccineLotService.listLots(filters);
             
@@ -77,10 +68,8 @@ class VaccineLotController {
             const { id } = req.params;
             const lot = await this.vaccineLotService.getLotById(id);
             
-            // Sucesso: 200 OK
             return res.status(200).json(lot);
         } catch (error) {
-            // Erro específico do Service (Lote não encontrado)
             if (error.message === 'Lote não encontrado.') {
                 return res.status(404).json({ error: error.message });
             }
@@ -105,10 +94,8 @@ class VaccineLotController {
 
             const updatedLot = await this.vaccineLotService.updateLot(id, updateData);
             
-            // Sucesso: 200 OK
             return res.status(200).json(updatedLot);
         } catch (error) {
-            // Erro específico do Service (Lote não encontrado)
             if (error.message === 'Lote não encontrado.') {
                 return res.status(404).json({ error: error.message });
             }
@@ -126,10 +113,8 @@ class VaccineLotController {
             const { id } = req.params;
             await this.vaccineLotService.deleteLot(id);
             
-            // Sucesso: 204 No Content (resposta padrão para DELETE)
             return res.status(204).send();
         } catch (error) {
-            // Erro específico do Service (Lote não encontrado)
             if (error.message === 'Lote não encontrado.') {
                 return res.status(404).json({ error: error.message });
             }

@@ -1,4 +1,3 @@
-// src/middlewares/authMiddleware.js
 const JwtService = require('../services/JwtService');
 const UserRepository = require('../repositories/UserRepository');
 
@@ -25,25 +24,22 @@ async function authMiddleware(req, res, next) {
     const token = parts[1];
 
     try {
-        // 1. Verifica se o token é válido e decodifica o payload
         const payload = JwtService.verifyToken(token);
 
-        // 2. Anexa o payload (que contém userId e role) ao objeto req
         req.user = {
             id: payload.userId,
             role: payload.role
         };
 
-        // 3. Opcional mas recomendado: Verificar se o usuário ainda existe no banco
+        // 3. Verifica se o usuário ainda existe no banco
         //    Isso previne que tokens de usuários deletados continuem válidos.
-        const userRepository = new UserRepository(); // Cuidado com a injeção aqui
+        const userRepository = new UserRepository(); 
         const userExists = await userRepository.findById(payload.userId);
         
         if (!userExists) {
             return res.status(401).json({ error: 'Usuário do token não encontrado.' });
         }
 
-        // Tudo certo, pode seguir para a próxima rota/middleware
         return next();
     } catch {
         return res.status(401).json({ error: 'Token inválido ou expirado.' });

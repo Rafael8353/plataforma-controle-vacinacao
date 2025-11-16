@@ -1,10 +1,6 @@
-// src/services/VaccineLotService.js
-const { Vaccine } = require('../models'); // Importamos o Vaccine também
-const { Op } = require('sequelize'); // Para filtros avançados (>, <, etc.)
+const { Vaccine } = require('../models'); 
+const { Op } = require('sequelize'); 
 
-/**
- * Serviço para a lógica de negócio de Lotes de Vacinas.
- */
 class VaccineLotService {
     /**
      * @param {import('../repositories/VaccineLotRepository')} vaccineLotRepository
@@ -21,20 +17,17 @@ class VaccineLotService {
     async createLot(lotData) {
         const { vacina_id, numero_lote, data_validade, quantidade_doses_inicial } = lotData;
 
-        // Validação 1: Verificar se a vacina (vacina_id) existe
-        // (Isso pressupõe que seu model 'Vaccine' está disponível)
         const vaccineExists = await Vaccine.findByPk(vacina_id);
         if (!vaccineExists) {
             throw new Error('Vacina (vacina_id) não encontrada.');
         }
 
-        // Validação 2: Regra de Negócio (Critério de Aceitação)
         const dataToCreate = {
-            vacina_id,
-            numero_lote,
-            data_validade,
-            quantidade_doses_inicial,
-            quantidade_doses_atual: quantidade_doses_inicial // Regra de negócio
+            vaccine_id: vacina_id, // Chave estrangeira
+            lot_number: numero_lote,
+            expiry_date: data_validade,
+            quantity_initial: quantidade_doses_inicial,
+            quantity_current: quantidade_doses_inicial // Regra de negócio
         };
 
         return await this.vaccineLotRepository.create(dataToCreate);
@@ -48,7 +41,7 @@ class VaccineLotService {
     async getLotById(id) {
         const lot = await this.vaccineLotRepository.findById(id);
         if (!lot) {
-            throw new Error('Lote não encontrado.'); // Será pego pelo Controller (404)
+            throw new Error('Lote não encontrado.');
         }
         return lot;
     }
@@ -61,9 +54,8 @@ class VaccineLotService {
     async listLots(filters) {
         const { disponivel, vacina_id } = filters;
 
-        // Opções de busca base
         const options = {
-            include: [{ model: Vaccine, as: 'vaccine' }], // Inclui a vacina associada
+            include: [{ model: Vaccine, as: 'vaccine' }], 
             where: {}
         };
 
@@ -78,9 +70,6 @@ class VaccineLotService {
             options.where.quantidade_doses_atual = { [Op.gt]: 0 }; // Doses > 0
         }
 
-        // O 'paranoid: true' (soft delete) no model já garante que
-        // lotes deletados (DELETE /lotes/:id) não apareçam aqui.
-
         return await this.vaccineLotRepository.findAll(options);
     }
 
@@ -91,24 +80,25 @@ class VaccineLotService {
      * @returns {Promise<VaccineLot>}
      */
     async updateLot(id, updateData) {
-        // Garante que o lote existe antes de tentar atualizar
         await this.getLotById(id);
 
-        // Regra de Negócio (Critério de Aceitação):
-        // Apenas 'numero_lote' e 'data_validade' podem ser atualizados.
+        // Regra de Negócio: Apenas 'numero_lote' e 'data_validade' podem ser atualizados.
         const dataToUpdate = {
-            numero_lote: updateData.numero_lote,
-            data_validade: updateData.data_validade
+            lot_number: updateData.numero_lote,
+            expiry_date: updateData.data_validade
         };
 
-        // Remove campos undefined para não sobrescrever com 'null'
+        // Remove campos que não foram enviados (para não tentar atualizar com "undefined")
+        Object.keys(dataToUpdate).forEach(key => 
+            dataToUpdate[key] === undefined && delete dataToUpdate[key]
+        );
+
         Object.keys(dataToUpdate).forEach(key => 
             dataToUpdate[key] === undefined && delete dataToUpdate[key]
         );
 
         await this.vaccineLotRepository.update(id, dataToUpdate);
         
-        // Retorna o lote atualizado
         return this.vaccineLotRepository.findById(id);
     }
 

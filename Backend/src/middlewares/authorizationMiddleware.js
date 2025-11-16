@@ -1,5 +1,3 @@
-// src/middlewares/authorizationMiddleware.js
-
 /**
  * Factory de middleware para verificar o perfil (role) do usuário.
  *
@@ -17,7 +15,6 @@ function authorize(allowedRoles) {
         const { role } = req.user;
 
         if (!role || !allowedRoles.includes(role)) {
-            // 403 Forbidden - O usuário está autenticado, mas não tem permissão
             return res.status(403).json({ error: 'Acesso negado. Permissão insuficiente.' });
         }
 
