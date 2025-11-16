@@ -1,9 +1,5 @@
-// src/repositories/VaccineLotRepository.js
 const { VaccineLot, Vaccine } = require('../models');
 
-/**
- * Repositório para operações de Lote de Vacina no banco de dados.
- */
 class VaccineLotRepository {
 
     /**
@@ -29,7 +25,7 @@ class VaccineLotRepository {
     /**
      * Busca todos os lotes com base em opções de filtro e inclusão.
      * Assume que o model VaccineLot está com 'paranoid: true' (soft delete).
-     * @param {object} options - Opções de busca do Sequelize (where, include, etc.).
+     * @param {object} options - 
      * @returns {Promise<VaccineLot[]>} Uma lista de lotes.
      */
     async findAll(options) {
@@ -45,7 +41,7 @@ class VaccineLotRepository {
     async update(id, data) {
         return await VaccineLot.update(data, {
             where: { id },
-            returning: true // Importante para retornar o objeto atualizado no Postgres
+            returning: true 
         });
     }
 
