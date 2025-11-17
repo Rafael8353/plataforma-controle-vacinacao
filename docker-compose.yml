@@ -1,17 +1,16 @@
-name: controle-vacinacao-api
-
+name: controle-vacinacao
 services:
   db:
     image: postgres:16
     container_name: controle-vacinacao-db
     restart: always
-    env_file: ./.env
+    env_file: ./Backend/.env
     ports:
       - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -d ${DB_NAME} -U ${DB_USER}" ]
+      test: [ "CMD-SHELL", "pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}" ]
       interval: 5s      
       timeout: 5s       
       retries: 5        
@@ -20,20 +19,30 @@ services:
   api:
     container_name: controle-vacinacao-app
     build: 
-      context: .
+      context: ./Backend
       dockerfile: Dockerfile
     restart: always
     ports:
       - "3000:3000"
-    env_file: ./.env
+    env_file: ./Backend/.env
     volumes:
-      - .:/usr/src/app
+      - ./Backend:/usr/src/app
       - /usr/src/app/node_modules
     depends_on:
       db:
         condition: service_healthy
-        
     command: npm run dev
+
+  frontend:
+    container_name: controle-vacinacao-frontend
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"   # 5173 externo → 80 interno
+    depends_on:
+      - api
+
 
 volumes:
   postgres_data:

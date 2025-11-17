@@ -93,7 +93,11 @@ docker-compose exec api npx sequelize-cli db:migrate
 docker-compose exec api npx sequelize-cli db:seed:all
 ```
 
-Pronto! A API do backend deve estar rodando e acessível (geralmente em http://localhost:3000, verifique seu .env).
+Pronto! 
+A aplicação está rodando.
+Para conferir acesse http://localhost:5173 
+
+Para conferir se o backend está funcionando acesse: http://localhost:3000
 
 
 ## 🤝 Contribuição
