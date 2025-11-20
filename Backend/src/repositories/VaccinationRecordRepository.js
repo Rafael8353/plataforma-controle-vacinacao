@@ -26,7 +26,7 @@ class VaccinationRecordRepository {
                         {
                             model: Vaccine,
                             as: 'vaccine',
-                            attributes: ['name', 'manufacturer', 'dose_info']
+                            attributes: ['name', 'manufacturer', 'dose_info', 'dose_interval_days']
                         }
                     ]
                 }

@@ -41,7 +41,7 @@ module.exports = {
       await queryInterface.bulkInsert('vaccinationRecords', [
         {
           id: uuidv4(),
-          application_date: new Date('2023-01-15T10:00:00Z'),
+          application_date: new Date(new Date().setDate(new Date().getDate() - 10)), // 10 dias atrás para a logica de próximas doses funcionar no teste 
           location: 'Clinica Central (SEEDED)',
           notes: 'Primeira dose administrada (seeder).',
           patient_id: patientId,         

@@ -34,6 +34,53 @@ class VaccinationRecordService {
 
         return formattedHistory;
     }
+
+    /**
+     * Obtem as próximas vacinas de acordo com o histórico do paciente.
+     * @param {String} patientId 
+     * @returns {Promise<Array>} 
+     */
+    async getUpcomingVaccines(patientId) {
+        const history = await this.vaccinationRecordRepository.findByPatientId(patientId);
+        
+        const upcomingList = [];
+        const processedVaccines = new Set(); 
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); 
+
+        for (const record of history) {
+            const vaccine = record.vaccineLot.vaccine;
+            const vaccineId = vaccine.id;
+
+            if (processedVaccines.has(vaccineId)) {
+                continue;
+            }
+
+            processedVaccines.add(vaccineId);
+
+            if (vaccine.dose_interval_days && vaccine.dose_interval_days > 0) {
+                
+                const lastDoseDate = new Date(record.application_date);
+                
+                const nextDoseDate = new Date(lastDoseDate);
+                nextDoseDate.setDate(lastDoseDate.getDate() + vaccine.dose_interval_days);
+                
+                nextDoseDate.setHours(0, 0, 0, 0);
+
+                if (nextDoseDate >= today) {
+                    upcomingList.push({
+                        vaccine_name: vaccine.name,
+                        next_dose_date: nextDoseDate.toISOString().split('T')[0], // Retorna YYYY-MM-DD
+                        dose_info: `Próxima dose sequencial (baseado no intervalo de ${vaccine.dose_interval_days} dias)`,
+                        manufacturer: vaccine.manufacturer
+                    });
+                }
+            }
+        }
+
+        return upcomingList;
+    }
 }
 
 module.exports = VaccinationRecordService;

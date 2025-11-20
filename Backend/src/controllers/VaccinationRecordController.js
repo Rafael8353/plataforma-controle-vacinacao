@@ -5,7 +5,6 @@ class VaccinationRecordController {
 
     getMyHistory = async (req, res) => {
         try {
-            // Assume-se que um middleware de auth populou req.user
             const patientId = req.user.id; 
             
             // opcional so para preservar a logca
@@ -20,6 +19,25 @@ class VaccinationRecordController {
         } catch (error) {
             console.error('Erro ao buscar histórico de vacinação:', error);
             return res.status(500).json({ error: 'Erro interno ao processar solicitação.' });
+        }
+    }
+
+    async getUpcoming(req, res) {
+        try {
+            const patientId = req.user.id;
+
+            console.log('Patient ID extraído:', patientId); 
+
+            if (!patientId) {
+                return res.status(401).json({ error: 'Usuário não identificado corretamente.' });
+            }
+
+            const upcomingVaccines = await this.vaccinationRecordService.getUpcomingVaccines(patientId);
+            
+            return res.status(200).json(upcomingVaccines);
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ error: 'Erro ao buscar próximas vacinas.' });
         }
     }
 }

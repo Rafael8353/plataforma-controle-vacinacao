@@ -18,4 +18,10 @@ router.get('/vaccination-records/my-history',
     vaccinationRecordController.getMyHistory
 );
 
+router.get('/vaccines/upcoming',
+    authMiddleware,           
+    authorize(['patient']),  
+    (req, res) => vaccinationRecordController.getUpcoming(req, res) 
+);
+
 module.exports = router;
