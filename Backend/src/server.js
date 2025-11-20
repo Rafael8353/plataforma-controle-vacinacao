@@ -1,9 +1,12 @@
-require('./models');
 require('dotenv').config();
+require('./models');
+
 const express = require('express');
 const cors = require('cors');
+
 const userRoutes = require('./routes/userRoutes');
 const vaccineLotRoutes = require('./routes/VaccineLotRoutes'); 
+const vaccinationRecordRoutes = require('./routes/VaccinationRecordRoute');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -13,6 +16,7 @@ app.use(cors());
 
 app.use('/users', userRoutes);
 app.use('/lotes', vaccineLotRoutes);
+app.use(vaccinationRecordRoutes);
 
 app.get('/', (req, res) => {
   res.status(200).json({
