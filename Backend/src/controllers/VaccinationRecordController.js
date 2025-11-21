@@ -40,6 +40,33 @@ class VaccinationRecordController {
             return res.status(500).json({ error: 'Erro ao buscar próximas vacinas.' });
         }
     }
+
+async getCertificate(req, res) {
+        try {
+            const patientId = req.user.id;
+
+            // Garante que é um paciente (redundante com middleware, mas seguro)
+            if (req.user.role !== 'patient') {
+                return res.status(403).json({ error: 'Apenas pacientes podem emitir certificados.' });
+            }
+
+            const certificate = await this.vaccinationRecordService.generateCertificate(patientId);
+
+            return res.status(200).json(certificate);
+
+        } catch (error) {
+            console.error('Erro ao gerar certificado:', error);
+            
+            // Tratamento específico para a validação de CPF/SUS
+            if (error.message.includes('Cadastro incompleto')) {
+                return res.status(400).json({ error: error.message });
+            }
+
+            return res.status(500).json({ error: 'Erro interno ao gerar o certificado.' });
+        }
+    }
 }
+
+
 
 module.exports = VaccinationRecordController;

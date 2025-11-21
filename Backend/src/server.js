@@ -16,7 +16,7 @@ app.use(cors());
 
 app.use('/users', userRoutes);
 app.use('/lotes', vaccineLotRoutes);
-app.use(vaccinationRecordRoutes);
+app.use('/vaccination-records', vaccinationRecordRoutes);
 
 app.get('/', (req, res) => {
   res.status(200).json({
