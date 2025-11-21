@@ -1,9 +1,13 @@
+// src/services/VaccinationRecordService.js
+const UserRepository = require('../repositories/UserRepository'); 
+
 class VaccinationRecordService {
     /**
      * @param {import('../repositories/VaccinationRecordRepository')} vaccinationRecordRepository
      */
     constructor(vaccinationRecordRepository) {
         this.vaccinationRecordRepository = vaccinationRecordRepository;
+        this.userRepository = new UserRepository(); 
     }
 
     /**
@@ -15,7 +19,6 @@ class VaccinationRecordService {
         const rawRecords = await this.vaccinationRecordRepository.findByPatientId(patientId);
 
         const formattedHistory = rawRecords.map(record => {
-            // Validação defensiva para evitar crash se alguma relação estiver faltando (dados inconsistentes)
             const lot = record.vaccineLot || {};
             const vaccine = lot.vaccine || {};
             const professional = record.professional || {};
@@ -26,7 +29,7 @@ class VaccinationRecordService {
                 vaccine_name: vaccine.name,
                 vaccine_manufacturer: vaccine.manufacturer,
                 dose_info: vaccine.dose_info,
-                lot_number: lot.lot_number, 
+                lot_number: lot.numero_lote || lot.lot_number, 
                 professional_name: professional.name,
                 professional_register: professional.professional_register
             };
@@ -71,7 +74,7 @@ class VaccinationRecordService {
                 if (nextDoseDate >= today) {
                     upcomingList.push({
                         vaccine_name: vaccine.name,
-                        next_dose_date: nextDoseDate.toISOString().split('T')[0], // Retorna YYYY-MM-DD
+                        next_dose_date: nextDoseDate.toISOString().split('T')[0],
                         dose_info: `Próxima dose sequencial (baseado no intervalo de ${vaccine.dose_interval_days} dias)`,
                         manufacturer: vaccine.manufacturer
                     });
@@ -80,6 +83,63 @@ class VaccinationRecordService {
         }
 
         return upcomingList;
+    }
+
+    /**
+     * Gera o comprovante de vacinação completo (Certificado).
+     * @param {string} patientId 
+     * @returns {Promise<Object>}
+     */
+    async generateCertificate(patientId) {
+        // 1. Buscar dados do Paciente
+        const patient = await this.userRepository.findById(patientId);
+
+        if (!patient) {
+            throw new Error('Paciente não encontrado.');
+        }
+
+        // 2. Validar Critérios: CPF e Cartão SUS são obrigatórios para documento oficial
+        if (!patient.cpf || !patient.sus_card_number) {
+            throw new Error('Cadastro incompleto: Para gerar o certificado, é necessário ter CPF e Cartão do SUS cadastrados.');
+        }
+
+        // 3. Buscar registros de vacinação
+        const records = await this.vaccinationRecordRepository.findByPatientId(patientId);
+
+        // 4. Formatar para o JSON do Certificado
+        const certificate = {
+            user_info: {
+                full_name: patient.name,
+                cpf: patient.cpf,
+                birth_date: patient.birth_date,
+                sus_card_number: patient.sus_card_number
+            },
+            vaccinations: records.map(record => {
+                const lot = record.vaccineLot || {};
+                const vaccine = lot.vaccine || {};
+                const professional = record.professional || {};
+
+                return {
+                    vaccine_name: vaccine.name || 'Vacina não identificada',
+                    manufacturer: vaccine.manufacturer || 'N/A',
+                    application_date: record.application_date,
+                    dose: record.dose_number || 'Única',
+                    lot: {
+                        // Garante que pega o número do lote independente do nome da coluna
+                        number: lot.numero_lote || lot.lot_number || 'N/A',
+                        // A data de validade é CRÍTICA para o certificado
+                        expiration_date: lot.data_validade || 'N/A' 
+                    },
+                    applicator: {
+                        name: professional.name || 'N/A',
+                        register: professional.professional_register || 'N/A'
+                    }
+                };
+            }),
+            issued_at: new Date()
+        };
+
+        return certificate;
     }
 }
 

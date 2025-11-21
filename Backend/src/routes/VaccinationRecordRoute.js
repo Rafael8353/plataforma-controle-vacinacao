@@ -18,6 +18,12 @@ router.get('/vaccination-records/my-history',
     vaccinationRecordController.getMyHistory
 );
 
+router.get('/vaccination-records/certificate',
+    authMiddleware,
+    authorize(['patient']),
+    (req, res) => vaccinationRecordController.getCertificate(req, res)
+);
+
 router.get('/vaccines/upcoming',
     authMiddleware,           
     authorize(['patient']),  
