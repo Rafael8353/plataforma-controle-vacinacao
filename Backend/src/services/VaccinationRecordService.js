@@ -91,22 +91,18 @@ class VaccinationRecordService {
      * @returns {Promise<Object>}
      */
     async generateCertificate(patientId) {
-        // 1. Buscar dados do Paciente
         const patient = await this.userRepository.findById(patientId);
 
         if (!patient) {
             throw new Error('Paciente não encontrado.');
         }
 
-        // 2. Validar Critérios: CPF e Cartão SUS são obrigatórios para documento oficial
         if (!patient.cpf || !patient.sus_card_number) {
             throw new Error('Cadastro incompleto: Para gerar o certificado, é necessário ter CPF e Cartão do SUS cadastrados.');
         }
 
-        // 3. Buscar registros de vacinação
         const records = await this.vaccinationRecordRepository.findByPatientId(patientId);
 
-        // 4. Formatar para o JSON do Certificado
         const certificate = {
             user_info: {
                 full_name: patient.name,
@@ -125,10 +121,8 @@ class VaccinationRecordService {
                     application_date: record.application_date,
                     dose: record.dose_number || 'Única',
                     lot: {
-                        // Garante que pega o número do lote independente do nome da coluna
-                        number: lot.numero_lote || lot.lot_number || 'N/A',
-                        // A data de validade é CRÍTICA para o certificado
-                        expiration_date: lot.data_validade || 'N/A' 
+                        number: lot.lot_number || 'N/A',
+                        expiration_date: lot.expiry_date || 'N/A'
                     },
                     applicator: {
                         name: professional.name || 'N/A',

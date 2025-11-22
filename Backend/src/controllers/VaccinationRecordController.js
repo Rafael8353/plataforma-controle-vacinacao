@@ -45,7 +45,6 @@ async getCertificate(req, res) {
         try {
             const patientId = req.user.id;
 
-            // Garante que é um paciente (redundante com middleware, mas seguro)
             if (req.user.role !== 'patient') {
                 return res.status(403).json({ error: 'Apenas pacientes podem emitir certificados.' });
             }
@@ -66,7 +65,5 @@ async getCertificate(req, res) {
         }
     }
 }
-
-
 
 module.exports = VaccinationRecordController;

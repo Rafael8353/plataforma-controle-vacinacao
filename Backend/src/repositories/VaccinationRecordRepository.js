@@ -11,7 +11,7 @@ class VaccinationRecordRepository {
     async findByPatientId(patientId) {
         return await VaccinationRecord.findAll({
             where: { patient_id: patientId },
-            attributes: ['application_date', 'location', 'notes', 'dose_number'], 
+            attributes: ['application_date', 'location', 'notes'], 
             include: [
                 {
                     model: User,
@@ -21,7 +21,7 @@ class VaccinationRecordRepository {
                 {
                     model: VaccineLot,
                     as: 'vaccineLot',
-                    attributes: ['lot_number', 'numero_lote', 'data_validade'],
+                    attributes: ['lot_number', 'expiry_date'],
                     include: [
                         {
                             model: Vaccine,
