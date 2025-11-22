@@ -12,13 +12,13 @@ const vaccinationRecordRepo = new VaccinationRecordRepository();
 const vaccinationRecordService = new VaccinationRecordService(vaccinationRecordRepo);
 const vaccinationRecordController = new VaccinationRecordController(vaccinationRecordService);
 
-router.get('/vaccination-records/my-history', 
+router.get('/my-history', 
     authMiddleware,           // Verifica Token e popula req.user
     authorize(['patient']),     // Verifica se req.user.role === 'patient'
     vaccinationRecordController.getMyHistory
 );
 
-router.get('/vaccination-records/certificate',
+router.get('/certificate',
     authMiddleware,
     authorize(['patient']),
     (req, res) => vaccinationRecordController.getCertificate(req, res)
