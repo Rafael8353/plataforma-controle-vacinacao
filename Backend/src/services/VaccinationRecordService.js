@@ -135,6 +135,36 @@ class VaccinationRecordService {
 
         return certificate;
     }
+
+    /**
+     * Obtém estatísticas do profissional de saúde
+     * @param {string} professionalId 
+     * @returns {Promise<Object>}
+     */
+    async getProfessionalStats(professionalId) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Aplicações hoje
+        const aplicacoesHoje = await this.vaccinationRecordRepository.countByProfessionalAndDate(
+            professionalId, 
+            today
+        );
+
+        // Total de pacientes únicos
+        const totalPacientes = await this.vaccinationRecordRepository.countUniquePatientsByProfessional(
+            professionalId
+        );
+
+        // Atendimentos hoje (mesmo que aplicações hoje, já que cada aplicação é um atendimento)
+        const atendimentosHoje = aplicacoesHoje;
+
+        return {
+            atendimentosHoje,
+            totalPacientes,
+            aplicacoesHoje
+        };
+    }
 }
 
 module.exports = VaccinationRecordService;
