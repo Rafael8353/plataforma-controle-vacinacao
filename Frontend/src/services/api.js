@@ -63,6 +63,12 @@ class ApiService {
     });
   }
 
+  async getCertificate() {
+    return this.request('/vaccination-records/certificate', {
+      method: 'GET',
+    });
+  }
+
   // Dashboard - Profissional (métodos básicos, podem ser expandidos)
   async getVaccineLots() {
     return this.request('/lotes/list', {
@@ -72,6 +78,20 @@ class ApiService {
 
   async getVaccines() {
     return this.request('/vaccines', {
+      method: 'GET',
+    });
+  }
+
+  // Obter dados do usuário logado
+  async getCurrentUser() {
+    return this.request('/users/me', {
+      method: 'GET',
+    });
+  }
+
+  // Dashboard - Profissional - Estatísticas
+  async getProfessionalStats() {
+    return this.request('/vaccination-records/professional/stats', {
       method: 'GET',
     });
   }

@@ -20,20 +20,48 @@ function DashboardProfissional({ userToken, onLogout }) {
     try {
       setLoading(true);
       
-      // Carregar dados do estoque
-      const lots = await api.getVaccineLots().catch(() => []);
-      const lowStock = lots.filter(lot => lot.quantity < 10).length || 0;
-      
-      // Simular dados (em produção, buscar do backend)
-      setStats({
-        atendimentosHoje: 15,
-        totalPacientes: 342,
-        estoqueBaixo: lowStock,
-        aplicacoesHoje: 8
+      // Carregar dados do usuário
+      const userData = await api.getCurrentUser().catch(err => {
+        console.warn('Erro ao carregar dados do usuário:', err);
+        return null;
       });
       
-      // Simular nome do usuário
-      setUserName('Dr. João Santos');
+      if (userData) {
+        // Adicionar prefixo Dr. se for profissional de saúde
+        const name = userData.name || 'Usuário';
+        setUserName(userData.role === 'health_professional' ? `Dr. ${name}` : name);
+      }
+      
+      // Carregar dados do estoque
+      const lots = await api.getVaccineLots().catch(() => []);
+      
+      // Calcular estoque baixo (lotes com quantidade atual menor que 10 ou vencidos)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const lowStock = lots.filter(lot => {
+        const expiryDate = new Date(lot.expiry_date);
+        expiryDate.setHours(0, 0, 0, 0);
+        return (lot.quantity_current < 10) || (expiryDate < today);
+      }).length;
+      
+      // Buscar estatísticas do profissional
+      const professionalStats = await api.getProfessionalStats().catch(err => {
+        console.warn('Erro ao carregar estatísticas do profissional:', err);
+        return {
+          atendimentosHoje: 0,
+          totalPacientes: 0,
+          aplicacoesHoje: 0
+        };
+      });
+      
+      // Estatísticas baseadas em dados reais do backend
+      setStats({
+        atendimentosHoje: professionalStats.atendimentosHoje || 0,
+        totalPacientes: professionalStats.totalPacientes || 0,
+        estoqueBaixo: lowStock,
+        aplicacoesHoje: professionalStats.aplicacoesHoje || 0
+      });
     } catch (error) {
       console.error('Erro ao carregar dados do dashboard:', error);
     } finally {

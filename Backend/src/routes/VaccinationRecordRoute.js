@@ -30,4 +30,10 @@ router.get('/vaccines/upcoming',
     (req, res) => vaccinationRecordController.getUpcoming(req, res) 
 );
 
+router.get('/professional/stats',
+    authMiddleware,
+    authorize(['health_professional']),
+    (req, res) => vaccinationRecordController.getProfessionalStats(req, res)
+);
+
 module.exports = router;

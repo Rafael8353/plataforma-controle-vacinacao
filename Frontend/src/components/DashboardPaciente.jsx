@@ -13,6 +13,10 @@ function DashboardPaciente({ userToken, onLogout }) {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [certificate, setCertificate] = useState(null);
+  const [showCertificate, setShowCertificate] = useState(false);
+  const [certificateError, setCertificateError] = useState(null);
+  const [generatingCertificate, setGeneratingCertificate] = useState(false);
 
   useEffect(() => {
     loadDashboardData();
@@ -22,6 +26,16 @@ function DashboardPaciente({ userToken, onLogout }) {
     try {
       setLoading(true);
       setError(null);
+      
+      // Carregar dados do usuário
+      const userData = await api.getCurrentUser().catch(err => {
+        console.warn('Erro ao carregar dados do usuário:', err);
+        return null;
+      });
+      
+      if (userData) {
+        setUserName(userData.name || 'Usuário');
+      }
       
       // Carregar próximas vacinas
       const upcoming = await api.getUpcomingVaccines().catch(err => {
@@ -43,9 +57,6 @@ function DashboardPaciente({ userToken, onLogout }) {
         history: historyData?.length || 0,
         status: 'Em dia'
       });
-      
-      // Simular nome do usuário (em produção, buscar do backend)
-      setUserName('Maria Silva');
     } catch (error) {
       console.error('Erro ao carregar dados do dashboard:', error);
       setError('Erro ao carregar dados. Tente novamente mais tarde.');
@@ -62,6 +73,65 @@ function DashboardPaciente({ userToken, onLogout }) {
       month: 'long',
       year: 'numeric'
     });
+  };
+
+  const formatDateShort = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR');
+  };
+
+  const handleGenerateCertificate = async () => {
+    try {
+      setGeneratingCertificate(true);
+      setCertificateError(null);
+      
+      const cert = await api.getCertificate();
+      setCertificate(cert);
+      setShowCertificate(true);
+    } catch (err) {
+      setCertificateError(err.message || 'Erro ao gerar certificado. Verifique se seu cadastro está completo (CPF e Cartão SUS).');
+    } finally {
+      setGeneratingCertificate(false);
+    }
+  };
+
+  const handleDownloadCertificate = () => {
+    if (!certificate) return;
+
+    const content = `
+CERTIFICADO DE VACINAÇÃO
+VacinaCard - Sistema de Gestão de Vacinação
+
+DADOS DO PACIENTE
+Nome: ${certificate.user_info.full_name}
+CPF: ${certificate.user_info.cpf}
+Data de Nascimento: ${formatDateShort(certificate.user_info.birth_date)}
+Cartão SUS: ${certificate.user_info.sus_card_number}
+
+VACINAS APLICADAS
+${certificate.vaccinations.map((v, i) => `
+${i + 1}. ${v.vaccine_name}
+   Fabricante: ${v.manufacturer}
+   Data de Aplicação: ${formatDateShort(v.application_date)}
+   Dose: ${v.dose}
+   Lote: ${v.lot.number}
+   Validade do Lote: ${formatDateShort(v.lot.expiration_date)}
+   Aplicador: ${v.applicator.name} (Registro: ${v.applicator.register})
+`).join('')}
+
+Certificado emitido em: ${formatDateShort(certificate.issued_at)}
+    `.trim();
+
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `certificado-vacinacao-${certificate.user_info.cpf}-${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -141,6 +211,83 @@ function DashboardPaciente({ userToken, onLogout }) {
 
         <div className="section">
           <div className="section-header">
+            <h2 className="section-title">Certificado de Vacinação</h2>
+            <p className="section-subtitle">Gere seu certificado completo de vacinação</p>
+          </div>
+          
+          <div className="certificate-card">
+            <p>Clique no botão abaixo para gerar seu certificado de vacinação com todas as vacinas aplicadas.</p>
+            {certificateError && (
+              <div className="error-message" style={{ marginBottom: '1rem' }}>
+                {certificateError}
+              </div>
+            )}
+            <button 
+              onClick={handleGenerateCertificate} 
+              className="certificate-button"
+              disabled={generatingCertificate}
+            >
+              {generatingCertificate ? 'Gerando...' : 'Gerar Certificado'}
+            </button>
+          </div>
+        </div>
+
+        {showCertificate && certificate && (
+          <div className="certificate-modal-overlay" onClick={() => setShowCertificate(false)}>
+            <div className="certificate-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="certificate-modal-header">
+                <h2>Certificado de Vacinação</h2>
+                <button className="close-button" onClick={() => setShowCertificate(false)}>×</button>
+              </div>
+              <div className="certificate-content">
+                <div className="certificate-section">
+                  <h3>Dados do Paciente</h3>
+                  <p><strong>Nome:</strong> {certificate.user_info.full_name}</p>
+                  <p><strong>CPF:</strong> {certificate.user_info.cpf}</p>
+                  <p><strong>Data de Nascimento:</strong> {formatDateShort(certificate.user_info.birth_date)}</p>
+                  <p><strong>Cartão SUS:</strong> {certificate.user_info.sus_card_number}</p>
+                </div>
+
+                <div className="certificate-section">
+                  <h3>Vacinas Aplicadas</h3>
+                  {certificate.vaccinations.length > 0 ? (
+                    <div className="vaccination-list">
+                      {certificate.vaccinations.map((vaccination, index) => (
+                        <div key={index} className="vaccination-item">
+                          <h4>{vaccination.vaccine_name}</h4>
+                          <p><strong>Fabricante:</strong> {vaccination.manufacturer}</p>
+                          <p><strong>Data de Aplicação:</strong> {formatDateShort(vaccination.application_date)}</p>
+                          <p><strong>Dose:</strong> {vaccination.dose}</p>
+                          <p><strong>Lote:</strong> {vaccination.lot.number}</p>
+                          <p><strong>Validade do Lote:</strong> {formatDateShort(vaccination.lot.expiration_date)}</p>
+                          <p><strong>Aplicador:</strong> {vaccination.applicator.name} (Registro: {vaccination.applicator.register})</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p>Nenhuma vacina registrada.</p>
+                  )}
+                </div>
+
+                <div className="certificate-footer">
+                  <p><strong>Certificado emitido em:</strong> {formatDateShort(certificate.issued_at)}</p>
+                </div>
+
+                <div className="certificate-actions">
+                  <button onClick={handleDownloadCertificate} className="download-button">
+                    Baixar Certificado
+                  </button>
+                  <button onClick={() => setShowCertificate(false)} className="close-modal-button">
+                    Fechar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="section">
+          <div className="section-header">
             <h2 className="section-title">Próximas vacinas</h2>
             <p className="section-subtitle">Vacinas programadas para você</p>
           </div>
@@ -153,11 +300,14 @@ function DashboardPaciente({ userToken, onLogout }) {
                 <div key={index} className="vaccine-item">
                   <div className="vaccine-info">
                     <h3 className="vaccine-name">{vaccine.vaccine_name || 'Vacina'}</h3>
-                    <p className="vaccine-date">{formatDate(vaccine.scheduled_date || vaccine.next_dose_date)}</p>
+                    <p className="vaccine-date">{formatDate(vaccine.next_dose_date)}</p>
+                    {vaccine.dose_info && (
+                      <p className="vaccine-dose-info" style={{ fontSize: '0.75rem', color: '#888', marginTop: '0.25rem' }}>
+                        {vaccine.dose_info}
+                      </p>
+                    )}
                   </div>
-                  <span className="vaccine-status pending">
-                    {vaccine.status === 'scheduled' ? 'Agendada' : 'Pendente'}
-                  </span>
+                  <span className="vaccine-status pending">Pendente</span>
                 </div>
               ))}
             </div>

@@ -64,6 +64,28 @@ async getCertificate(req, res) {
             return res.status(500).json({ error: 'Erro interno ao gerar o certificado.' });
         }
     }
+
+    /**
+     * Retorna estatísticas do profissional de saúde
+     * @param {import('express').Request} req 
+     * @param {import('express').Response} res 
+     */
+    async getProfessionalStats(req, res) {
+        try {
+            const professionalId = req.user.id;
+
+            if (req.user.role !== 'health_professional') {
+                return res.status(403).json({ error: 'Apenas profissionais de saúde podem acessar essas estatísticas.' });
+            }
+
+            const stats = await this.vaccinationRecordService.getProfessionalStats(professionalId);
+            
+            return res.status(200).json(stats);
+        } catch (error) {
+            console.error('Erro ao buscar estatísticas do profissional:', error);
+            return res.status(500).json({ error: 'Erro interno ao processar solicitação.' });
+        }
+    }
 }
 
 module.exports = VaccinationRecordController;
