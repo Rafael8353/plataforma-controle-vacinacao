@@ -1,0 +1,139 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.register-card {
+  border: 1px solid #ddd;
+}
+
+.form-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 2.5rem;
+  width: 100%;
+  max-width: 448px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.form-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.pencil-icon {
+  margin-bottom: 1rem;
+}
+
+.brand-title {
+  font-size: 1.75rem;
+  font-weight: bold;
+  color: #2a2a2a;
+  margin: 0.5rem 0;
+}
+
+.brand-subtitle {
+  font-size: 0.875rem;
+  color: #888;
+  margin: 0.5rem 0 0 0;
+}
+
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #2a2a2a;
+}
+
+.form-group input,
+.form-select {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #4A90E2;
+}
+
+.form-group input::placeholder {
+  color: #aaa;
+}
+
+.form-select {
+  background-color: white;
+  cursor: pointer;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 0.875rem;
+  text-align: center;
+  padding: 0.5rem;
+  background-color: #fee;
+  border-radius: 4px;
+}
+
+.submit-button {
+  background-color: #4A90E2;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.875rem;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 0.5rem;
+}
+
+.submit-button:hover:not(:disabled) {
+  background-color: #357ABD;
+}
+
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.switch-form {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #888;
+  margin-top: 1rem;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #4A90E2;
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.link-button:hover {
+  color: #357ABD;
+}
+
