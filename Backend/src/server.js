@@ -7,6 +7,7 @@ const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const vaccineLotRoutes = require('./routes/VaccineLotRoutes'); 
 const vaccinationRecordRoutes = require('./routes/VaccinationRecordRoute');
+const VaccineRoute = require('./routes/VaccineRoute');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,6 +18,7 @@ app.use(cors());
 app.use('/users', userRoutes);
 app.use('/lotes', vaccineLotRoutes);
 app.use('/vaccination-records', vaccinationRecordRoutes);
+app.use(VaccineRoute);
 
 app.get('/', (req, res) => {
   res.status(200).json({
