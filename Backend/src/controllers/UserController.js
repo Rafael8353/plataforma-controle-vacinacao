@@ -1,9 +1,7 @@
 const UserRepository = require('../repositories/UserRepository');
 
 class UserController {
-    // Ajustei para aceitar injeção de dependência, mantendo consistência com os outros controllers
     constructor(userService) {
-        // Se passar userService, usa ele. Se não, cria um repositório novo.
         this.userRepository = userService ? userService.userRepository : new UserRepository();
     }
 
@@ -41,7 +39,6 @@ class UserController {
                 return res.status(400).json({ error: 'CPF é obrigatório para busca.' });
             }
 
-            // Limpa o CPF
             const cleanCpf = cpf.replace(/\D/g, '');
 
             const user = await this.userRepository.findByCpf(cleanCpf);
@@ -50,11 +47,9 @@ class UserController {
                 return res.status(404).json({ error: 'Paciente não encontrado.' });
             }
 
-            // ▼▼▼ SEGURANÇA: Remove a senha aqui também ▼▼▼
             const userJson = user.toJSON();
             delete userJson.password_hash;
 
-            // Retorna em um array (padrão REST para buscas)
             return res.status(200).json([userJson]);
 
         } catch (error) {
@@ -62,6 +57,9 @@ class UserController {
             return res.status(500).json({ error: 'Erro ao buscar usuário.' });
         }
     }
+
+    // busca o user por email
+    
 }
 
 module.exports = UserController;
