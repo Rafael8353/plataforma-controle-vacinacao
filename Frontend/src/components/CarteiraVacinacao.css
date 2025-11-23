@@ -1,0 +1,118 @@
+/* Herda estilos base do Dashboard.css, adicionando específicos */
+
+.timeline-container {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 0;
+}
+
+/* Linha vertical */
+.timeline-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 24px;
+  width: 2px;
+  background: #e0e0e0;
+}
+
+.timeline-item {
+  position: relative;
+  padding-left: 60px;
+  margin-bottom: 2rem;
+}
+
+/* Bolinha da timeline */
+.timeline-dot {
+  position: absolute;
+  left: 16px;
+  top: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #4A90E2;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px #4A90E2;
+  z-index: 1;
+}
+
+.timeline-date {
+  position: absolute;
+  left: -120px; /* Ajuste para desktop */
+  top: 0;
+  width: 100px;
+  text-align: right;
+  font-weight: 600;
+  color: #888;
+  font-size: 0.875rem;
+  display: none; /* Esconde em mobile por padrão */
+}
+
+.timeline-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s;
+}
+
+.timeline-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 0.75rem;
+}
+
+.timeline-vaccine-name {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #2a2a2a;
+  margin: 0;
+}
+
+.timeline-manufacturer {
+  font-size: 0.875rem;
+  color: #666;
+  margin: 0.25rem 0 0 0;
+}
+
+.timeline-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.detail-item label {
+  display: block;
+  font-size: 0.75rem;
+  color: #888;
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.detail-item span {
+  font-size: 0.95rem;
+  color: #333;
+  font-weight: 500;
+}
+
+/* Adaptação para mostrar a data dentro do card em mobile */
+@media (min-width: 768px) {
+  .timeline-date {
+    display: block;
+  }
+  .mobile-date {
+    display: none;
+  }
+}

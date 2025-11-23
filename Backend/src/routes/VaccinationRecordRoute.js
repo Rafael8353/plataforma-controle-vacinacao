@@ -12,10 +12,12 @@ const vaccinationRecordRepo = new VaccinationRecordRepository();
 const vaccinationRecordService = new VaccinationRecordService(vaccinationRecordRepo);
 const vaccinationRecordController = new VaccinationRecordController(vaccinationRecordService);
 
+// --- Rotas do Paciente ---
+
 router.get('/my-history', 
-    authMiddleware,           // Verifica Token e popula req.user
-    authorize(['patient']),     // Verifica se req.user.role === 'patient'
-    vaccinationRecordController.getMyHistory
+    authMiddleware,           
+    authorize(['patient']),    
+    vaccinationRecordController.getMyHistory // (OK se for arrow function no controller)
 );
 
 router.get('/certificate',
@@ -30,10 +32,20 @@ router.get('/vaccines/upcoming',
     (req, res) => vaccinationRecordController.getUpcoming(req, res) 
 );
 
+// --- Rotas do Profissional de Saúde ---
+
 router.get('/professional/stats',
     authMiddleware,
     authorize(['health_professional']),
     (req, res) => vaccinationRecordController.getProfessionalStats(req, res)
+);
+
+
+// POST /vaccination-records (Aplicação de Vacina)
+router.post('/', 
+    authMiddleware,
+    authorize(['health_professional']), // Apenas profissionais podem aplicar
+    (req, res) => vaccinationRecordController.create(req, res)
 );
 
 module.exports = router;

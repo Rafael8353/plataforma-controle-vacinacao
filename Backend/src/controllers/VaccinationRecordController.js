@@ -86,6 +86,34 @@ async getCertificate(req, res) {
             return res.status(500).json({ error: 'Erro interno ao processar solicitação.' });
         }
     }
+
+    async create(req, res) {
+        try {
+            // O ID do profissional vem do token de autenticação
+            const professionalId = req.user.id;
+            
+            // Dados vindos do Frontend
+            const { patient_id, vaccine_lot_id } = req.body;
+
+            if (!patient_id || !vaccine_lot_id) {
+                return res.status(400).json({ error: 'Dados incompletos (Paciente ou Lote faltando).' });
+            }
+
+            const record = await this.vaccinationRecordService.applyVaccine({
+                patient_id,
+                vaccine_lot_id,
+                professional_id: professionalId,
+                application_date: new Date()
+            });
+
+            return res.status(201).json(record);
+
+        } catch (error) {
+            console.error('Erro ao aplicar vacina:', error);
+            // Erros de negócio (sem estoque, vencido, etc)
+            return res.status(400).json({ error: error.message });
+        }
+    }
 }
 
 module.exports = VaccinationRecordController;

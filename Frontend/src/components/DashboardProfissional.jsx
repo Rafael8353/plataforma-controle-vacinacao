@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import './Dashboard.css';
+import AplicarVacina from './AplicarVacina'; // <--- IMPORTANTE
 
 function DashboardProfissional({ userToken, onLogout }) {
   const [userName, setUserName] = useState('');
@@ -11,31 +12,30 @@ function DashboardProfissional({ userToken, onLogout }) {
     aplicacoesHoje: 0
   });
   const [loading, setLoading] = useState(true);
+  
+  // ▼▼▼ ESTADO PARA CONTROLAR A NAVEGAÇÃO ▼▼▼
+  const [showApplicationForm, setShowApplicationForm] = useState(false);
 
   useEffect(() => {
-    loadDashboardData();
-  }, []);
+    // Só carrega dados se não estiver no formulário
+    if (!showApplicationForm) {
+        loadDashboardData();
+    }
+  }, [showApplicationForm]);
 
   const loadDashboardData = async () => {
     try {
       setLoading(true);
       
-      // Carregar dados do usuário
-      const userData = await api.getCurrentUser().catch(err => {
-        console.warn('Erro ao carregar dados do usuário:', err);
-        return null;
-      });
+      const userData = await api.getCurrentUser().catch(err => null);
       
       if (userData) {
-        // Adicionar prefixo Dr. se for profissional de saúde
         const name = userData.name || 'Usuário';
         setUserName(userData.role === 'health_professional' ? `Dr. ${name}` : name);
       }
       
-      // Carregar dados do estoque
       const lots = await api.getVaccineLots().catch(() => []);
       
-      // Calcular estoque baixo (lotes com quantidade atual menor que 10 ou vencidos)
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
@@ -45,17 +45,8 @@ function DashboardProfissional({ userToken, onLogout }) {
         return (lot.quantity_current < 10) || (expiryDate < today);
       }).length;
       
-      // Buscar estatísticas do profissional
-      const professionalStats = await api.getProfessionalStats().catch(err => {
-        console.warn('Erro ao carregar estatísticas do profissional:', err);
-        return {
-          atendimentosHoje: 0,
-          totalPacientes: 0,
-          aplicacoesHoje: 0
-        };
-      });
+      const professionalStats = await api.getProfessionalStats().catch(err => ({}));
       
-      // Estatísticas baseadas em dados reais do backend
       setStats({
         atendimentosHoje: professionalStats.atendimentosHoje || 0,
         totalPacientes: professionalStats.totalPacientes || 0,
@@ -68,6 +59,11 @@ function DashboardProfissional({ userToken, onLogout }) {
       setLoading(false);
     }
   };
+
+  // ▼▼▼ SE O FORMULÁRIO ESTIVER ATIVO, MOSTRA ELE ▼▼▼
+  if (showApplicationForm) {
+    return <AplicarVacina onBack={() => setShowApplicationForm(false)} />;
+  }
 
   return (
     <div className="dashboard-container">
@@ -157,7 +153,13 @@ function DashboardProfissional({ userToken, onLogout }) {
             </div>
             <h3 className="action-title">Aplicar vacina</h3>
             <p className="action-subtitle">Registrar nova aplicação de vacina</p>
-            <button className="action-button primary-button">Iniciar aplicação</button>
+            {/* ▼▼▼ AQUI ESTÁ A CORREÇÃO: ADICIONADO O ONCLICK ▼▼▼ */}
+            <button 
+                className="action-button primary-button"
+                onClick={() => setShowApplicationForm(true)}
+            >
+                Iniciar aplicação
+            </button>
           </div>
 
           <div className="action-card">
@@ -189,4 +191,3 @@ function DashboardProfissional({ userToken, onLogout }) {
 }
 
 export default DashboardProfissional;
-

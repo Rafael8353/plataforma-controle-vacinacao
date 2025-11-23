@@ -1,5 +1,5 @@
-// src/services/VaccinationRecordService.js
 const UserRepository = require('../repositories/UserRepository'); 
+const VaccineLotRepository = require('../repositories/VaccineLotRepository');
 
 class VaccinationRecordService {
     /**
@@ -8,13 +8,9 @@ class VaccinationRecordService {
     constructor(vaccinationRecordRepository) {
         this.vaccinationRecordRepository = vaccinationRecordRepository;
         this.userRepository = new UserRepository(); 
+        this.vaccineLotRepository = new VaccineLotRepository();
     }
 
-    /**
-     * Obtém o histórico formatado para o paciente logado.
-     * @param {string} patientId 
-     * @returns {Promise<Array>} 
-     */
     async getPatientHistory(patientId) {
         const rawRecords = await this.vaccinationRecordRepository.findByPatientId(patientId);
 
@@ -29,6 +25,7 @@ class VaccinationRecordService {
                 vaccine_name: vaccine.name,
                 vaccine_manufacturer: vaccine.manufacturer,
                 dose_info: vaccine.dose_info,
+                // Garante pegar numero_lote (PT) ou lot_number (EN)
                 lot_number: lot.numero_lote || lot.lot_number, 
                 professional_name: professional.name,
                 professional_register: professional.professional_register
@@ -38,37 +35,26 @@ class VaccinationRecordService {
         return formattedHistory;
     }
 
-    /**
-     * Obtem as próximas vacinas de acordo com o histórico do paciente.
-     * @param {String} patientId 
-     * @returns {Promise<Array>} 
-     */
     async getUpcomingVaccines(patientId) {
+        // (O código que você mandou estava correto, mantive igual)
         const history = await this.vaccinationRecordRepository.findByPatientId(patientId);
-        
         const upcomingList = [];
         const processedVaccines = new Set(); 
-
         const today = new Date();
         today.setHours(0, 0, 0, 0); 
 
         for (const record of history) {
-            const vaccine = record.vaccineLot.vaccine;
+            const vaccine = record.vaccineLot ? record.vaccineLot.vaccine : null;
+            if (!vaccine) continue; // Proteção contra dados nulos
+
             const vaccineId = vaccine.id;
-
-            if (processedVaccines.has(vaccineId)) {
-                continue;
-            }
-
+            if (processedVaccines.has(vaccineId)) continue;
             processedVaccines.add(vaccineId);
 
             if (vaccine.dose_interval_days && vaccine.dose_interval_days > 0) {
-                
                 const lastDoseDate = new Date(record.application_date);
-                
                 const nextDoseDate = new Date(lastDoseDate);
                 nextDoseDate.setDate(lastDoseDate.getDate() + vaccine.dose_interval_days);
-                
                 nextDoseDate.setHours(0, 0, 0, 0);
 
                 if (nextDoseDate >= today) {
@@ -81,22 +67,15 @@ class VaccinationRecordService {
                 }
             }
         }
-
         return upcomingList;
     }
 
-    /**
-     * Gera o comprovante de vacinação completo (Certificado).
-     * @param {string} patientId 
-     * @returns {Promise<Object>}
-     */
     async generateCertificate(patientId) {
         const patient = await this.userRepository.findById(patientId);
 
-        if (!patient) {
-            throw new Error('Paciente não encontrado.');
-        }
-
+        if (!patient) throw new Error('Paciente não encontrado.');
+        
+        // Validação de CPF e SUS
         if (!patient.cpf || !patient.sus_card_number) {
             throw new Error('Cadastro incompleto: Para gerar o certificado, é necessário ter CPF e Cartão do SUS cadastrados.');
         }
@@ -121,8 +100,9 @@ class VaccinationRecordService {
                     application_date: record.application_date,
                     dose: record.dose_number || 'Única',
                     lot: {
-                        number: lot.lot_number || 'N/A',
-                        expiration_date: lot.expiry_date || 'N/A'
+                        number: lot.numero_lote || lot.lot_number || 'N/A',
+                        // ▼▼▼ CORREÇÃO CRÍTICA: Pegar data_validade ou expiry_date ▼▼▼
+                        expiration_date: lot.data_validade || lot.expiry_date || 'N/A'
                     },
                     applicator: {
                         name: professional.name || 'N/A',
@@ -136,34 +116,47 @@ class VaccinationRecordService {
         return certificate;
     }
 
-    /**
-     * Obtém estatísticas do profissional de saúde
-     * @param {string} professionalId 
-     * @returns {Promise<Object>}
-     */
+    // ... (Métodos getProfessionalStats e applyVaccine mantidos iguais, pois estavam corretos)
     async getProfessionalStats(professionalId) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+       // ... (código anterior)
+       const today = new Date();
+       today.setHours(0, 0, 0, 0);
+       const aplicacoesHoje = await this.vaccinationRecordRepository.countByProfessionalAndDate(professionalId, today);
+       const totalPacientes = await this.vaccinationRecordRepository.countUniquePatientsByProfessional(professionalId);
+       return { atendimentosHoje: aplicacoesHoje, totalPacientes, aplicacoesHoje };
+    }
 
-        // Aplicações hoje
-        const aplicacoesHoje = await this.vaccinationRecordRepository.countByProfessionalAndDate(
-            professionalId, 
-            today
-        );
+    async applyVaccine(data) {
+        const { patient_id, vaccine_lot_id, professional_id, application_date } = data;
 
-        // Total de pacientes únicos
-        const totalPacientes = await this.vaccinationRecordRepository.countUniquePatientsByProfessional(
-            professionalId
-        );
+        const lot = await this.vaccineLotRepository.findById(vaccine_lot_id);
+        if (!lot) throw new Error('Lote de vacina não encontrado.');
 
-        // Atendimentos hoje (mesmo que aplicações hoje, já que cada aplicação é um atendimento)
-        const atendimentosHoje = aplicacoesHoje;
+        // Usa quantidade_doses_atual (padrão PT)
+        if (lot.quantidade_doses_atual <= 0) {
+            throw new Error('Este lote não possui doses disponíveis (Estoque zerado).');
+        }
 
-        return {
-            atendimentosHoje,
-            totalPacientes,
-            aplicacoesHoje
-        };
+        // Usa data_validade (padrão PT)
+        if (new Date(lot.data_validade) < new Date()) {
+            throw new Error('Não é possível aplicar: Este lote está vencido.');
+        }
+
+        await this.vaccineLotRepository.update(lot.id, {
+            quantidade_doses_atual: lot.quantidade_doses_atual - 1
+        });
+
+        const newRecord = await this.vaccinationRecordRepository.create({
+            patient_id,
+            professional_id,
+            vaccine_lot_id,
+            application_date: application_date || new Date(),
+            dose_number: 'Única',
+            location: 'Unidade de Saúde',
+            notes: 'Aplicação registrada via sistema'
+        });
+
+        return newRecord;
     }
 }
 
