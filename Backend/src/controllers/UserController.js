@@ -58,6 +58,7 @@ class UserController {
             return res.status(200).json([userJson]);
 
         } catch (error) {
+            console.error('Erro ao buscar usuário por CPF:', error);
             return res.status(500).json({ error: 'Erro ao buscar usuário.' });
         }
     }

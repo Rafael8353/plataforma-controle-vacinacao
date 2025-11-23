@@ -10,7 +10,7 @@ function Register({ onSwitchToLogin, onRegisterSuccess }) {
     email: '',
     telefone: '',
     password: '',
-    role: 'pacient',
+    role: 'patient',
     sus_card_number: '',
     professional_register: '',
   });
@@ -146,12 +146,12 @@ function Register({ onSwitchToLogin, onRegisterSuccess }) {
               required
               className="form-select"
             >
-              <option value="pacient">Paciente</option>
+              <option value="patient">Paciente</option>
               <option value="health_professional">Profissional de Saúde</option>
             </select>
           </div>
 
-          {formData.role === 'pacient' && (
+          {formData.role === 'patient' && (
             <div className="form-group">
               <label htmlFor="sus_card_number">Número do Cartão SUS</label>
               <input
