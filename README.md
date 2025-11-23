@@ -1,7 +1,7 @@
 > [!IMPORTANT]
 > Projeto ainda em desenvolvimento.
 
-# Plataforma de Controle de Vacinação
+# VacinaCard - Plataforma de Controle de Vacinação
 
 Este projeto visa modernizar e otimizar o processo de imunização, oferecendo uma solução robusta e integrada que atende às necessidades de pacientes, profissionais de saúde e gestores.
 
