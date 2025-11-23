@@ -3,16 +3,10 @@ const { Op } = require('sequelize');
 
 class VaccinationRecordRepository {
     
-    /**
-     * Busca o histórico de vacinação de um paciente específico.
-     * Realiza os joins (includes) necessários para trazer dados do lote, vacina e profissional.
-     * @param {string} patientId - UUID do paciente.
-     * @returns {Promise<VaccinationRecord[]>}
-     */
     async findByPatientId(patientId) {
         return await VaccinationRecord.findAll({
             where: { patient_id: patientId },
-            attributes: ['application_date', 'location', 'notes'], 
+            attributes: ['application_date', 'location', 'notes'], // Adicione 'dose_number' se tiver no banco
             include: [
                 {
                     model: User,
@@ -22,7 +16,7 @@ class VaccinationRecordRepository {
                 {
                     model: VaccineLot,
                     as: 'vaccineLot',
-                    attributes: ['lot_number', 'expiry_date'],
+
                     include: [
                         {
                             model: Vaccine,
@@ -36,11 +30,6 @@ class VaccinationRecordRepository {
         });
     }
 
-    /**
-     * Busca registros de vacinação por profissional
-     * @param {string} professionalId - UUID do profissional
-     * @returns {Promise<VaccinationRecord[]>}
-     */
     async findByProfessionalId(professionalId) {
         return await VaccinationRecord.findAll({
             where: { professional_id: professionalId },
@@ -48,12 +37,6 @@ class VaccinationRecordRepository {
         });
     }
 
-    /**
-     * Conta registros de vacinação de um profissional em uma data específica
-     * @param {string} professionalId - UUID do profissional
-     * @param {Date} date - Data para filtrar
-     * @returns {Promise<number>}
-     */
     async countByProfessionalAndDate(professionalId, date) {
         const startOfDay = new Date(date);
         startOfDay.setHours(0, 0, 0, 0);
@@ -70,11 +53,6 @@ class VaccinationRecordRepository {
         });
     }
 
-    /**
-     * Conta pacientes únicos atendidos por um profissional
-     * @param {string} professionalId - UUID do profissional
-     * @returns {Promise<number>}
-     */
     async countUniquePatientsByProfessional(professionalId) {
         const { Sequelize } = require('sequelize');
         const result = await VaccinationRecord.findAll({
@@ -84,8 +62,11 @@ class VaccinationRecordRepository {
             ],
             raw: true
         });
-        // Filtrar resultados nulos e contar
         return result.filter(r => r.patient_id !== null).length;
+    }
+
+    async create(data) {
+        return await VaccinationRecord.create(data);
     }
 }
 
