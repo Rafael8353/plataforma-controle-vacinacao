@@ -66,8 +66,8 @@ class VaccineLotService {
 
         // Aplica filtro: ?disponivel=true
         if (disponivel === 'true') {
-            options.where.data_validade = { [Op.gt]: new Date() }; // Validade futura
-            options.where.quantidade_doses_atual = { [Op.gt]: 0 }; // Doses > 0
+           options.where.expiry_date = { [Op.gt]: new Date() }; // Antes estava 'data_validade'
+            options.where.quantity_current = { [Op.gt]: 0 };
         }
 
         return await this.vaccineLotRepository.findAll(options);

@@ -63,7 +63,7 @@ function AplicarVacina({ onBack }) {
     setLoading(true);
     setError(null);
     try {
-      const selectedLot = lots.find(l => l.id === parseInt(selectedLotId));
+       const selectedLot = lots.find(l => l.id === selectedLotId);
       
       if (!selectedLot) {
           setError('Selecione um lote válido.');
@@ -173,7 +173,7 @@ function AplicarVacina({ onBack }) {
                 <option value="">Selecione...</option>
                 {lots.map(lot => (
                   <option key={lot.id} value={lot.id}>
-                    {lot.vaccine?.name} - Lote: {lot.numero_lote} (Val: {new Date(lot.data_validade).toLocaleDateString()})
+                    {lot.vaccine?.name} - Lote: {lot.lot_number} (Val: {new Date(lot.expiry_date).toLocaleDateString()})
                   </option>
                 ))}
               </select>
@@ -215,7 +215,7 @@ function AplicarVacina({ onBack }) {
                </div>
                <div className="summary-item">
                  <span>Lote</span>
-                 <strong>{lotInfo?.numero_lote}</strong>
+                 <strong>{lotInfo?.lot_number}</strong>
                </div>
                <div className="summary-item">
                  <span>Data Aplicação</span>

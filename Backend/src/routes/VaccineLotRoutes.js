@@ -16,8 +16,8 @@ router.use(authMiddleware);
 router.use(authorize(['health_professional'])); // apenas profissionais de saúde podem gerenciar lotes 
 
 router.post('/create', vaccineLotController.create);
-router.get('/list', vaccineLotController.list);
-router.get('/list/:id', vaccineLotController.getById);
+router.get('/', vaccineLotController.list);
+router.get('/:id', vaccineLotController.getById);
 router.put('/update/:id', vaccineLotController.update);
 router.delete('/delete/:id', vaccineLotController.delete);
 
