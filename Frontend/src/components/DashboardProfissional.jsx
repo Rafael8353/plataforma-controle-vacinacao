@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import './Dashboard.css';
-import AplicarVacina from './AplicarVacina'; // <--- IMPORTANTE
+import AplicarVacina from './AplicarVacina';
+import GestaoEstoque from './GestaoEstoque'; // Certifique-se que o arquivo existe
+import GestaoVacinas from './GestaoVacinas'; // Certifique-se que o arquivo existe
 
 function DashboardProfissional({ userToken, onLogout }) {
   const [userName, setUserName] = useState('');
@@ -13,22 +15,22 @@ function DashboardProfissional({ userToken, onLogout }) {
   });
   const [loading, setLoading] = useState(true);
   
-  // ▼▼▼ ESTADO PARA CONTROLAR A NAVEGAÇÃO ▼▼▼
-  const [showApplicationForm, setShowApplicationForm] = useState(false);
+  // ▼▼▼ MUDANÇA PRINCIPAL: Controle de navegação por string ▼▼▼
+  // Opções: 'dashboard', 'aplicar', 'estoque', 'vacinas'
+  const [activeView, setActiveView] = useState('dashboard');
 
   useEffect(() => {
-    // Só carrega dados se não estiver no formulário
-    if (!showApplicationForm) {
+    // Só carrega dados do dashboard se estiver na visualização principal
+    if (activeView === 'dashboard') {
         loadDashboardData();
     }
-  }, [showApplicationForm]);
+  }, [activeView]);
 
   const loadDashboardData = async () => {
     try {
       setLoading(true);
       
       const userData = await api.getCurrentUser().catch(err => null);
-      
       if (userData) {
         const name = userData.name || 'Usuário';
         setUserName(userData.role === 'health_professional' ? `Dr. ${name}` : name);
@@ -60,11 +62,21 @@ function DashboardProfissional({ userToken, onLogout }) {
     }
   };
 
-  // ▼▼▼ SE O FORMULÁRIO ESTIVER ATIVO, MOSTRA ELE ▼▼▼
-  if (showApplicationForm) {
-    return <AplicarVacina onBack={() => setShowApplicationForm(false)} />;
+  // ▼▼▼ RENDERIZAÇÃO CONDICIONAL DAS TELAS ▼▼▼
+
+  if (activeView === 'aplicar') {
+    return <AplicarVacina onBack={() => setActiveView('dashboard')} />;
   }
 
+  if (activeView === 'estoque') {
+    return <GestaoEstoque onBack={() => setActiveView('dashboard')} />;
+  }
+
+  if (activeView === 'vacinas') {
+    return <GestaoVacinas onBack={() => setActiveView('dashboard')} />;
+  }
+
+  // Visualização Padrão (Dashboard)
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
@@ -95,7 +107,8 @@ function DashboardProfissional({ userToken, onLogout }) {
         </div>
 
         <div className="stats-cards">
-          <div className="stat-card">
+            {/* Cards de estatística mantidos iguais */}
+            <div className="stat-card">
             <div className="stat-icon calendar">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M19 4H5C3.89 4 3 4.9 3 6V20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4ZM19 20H5V9H19V20Z" fill="currentColor"/>
@@ -153,10 +166,10 @@ function DashboardProfissional({ userToken, onLogout }) {
             </div>
             <h3 className="action-title">Aplicar vacina</h3>
             <p className="action-subtitle">Registrar nova aplicação de vacina</p>
-            {/* ▼▼▼ AQUI ESTÁ A CORREÇÃO: ADICIONADO O ONCLICK ▼▼▼ */}
+            {/* Botão Atualizado */}
             <button 
                 className="action-button primary-button"
-                onClick={() => setShowApplicationForm(true)}
+                onClick={() => setActiveView('aplicar')}
             >
                 Iniciar aplicação
             </button>
@@ -170,7 +183,13 @@ function DashboardProfissional({ userToken, onLogout }) {
             </div>
             <h3 className="action-title">Gestão de estoque</h3>
             <p className="action-subtitle">Gerenciar lotes e validades</p>
-            <button className="action-button secondary-button">Ver estoque</button>
+            {/* Botão Atualizado */}
+            <button 
+                className="action-button secondary-button"
+                onClick={() => setActiveView('estoque')}
+            >
+                Ver estoque
+            </button>
           </div>
 
           <div className="action-card">
@@ -182,7 +201,13 @@ function DashboardProfissional({ userToken, onLogout }) {
             </div>
             <h3 className="action-title">Gestão de vacinas</h3>
             <p className="action-subtitle">Gerenciar todos os tipos de vacinas</p>
-            <button className="action-button secondary-button">Gerenciar vacinas</button>
+            {/* Botão Atualizado */}
+            <button 
+                className="action-button secondary-button"
+                onClick={() => setActiveView('vacinas')}
+            >
+                Gerenciar vacinas
+            </button>
           </div>
         </div>
       </div>

@@ -115,6 +115,34 @@ class ApiService {
       body: data,
     });
   }
+
+  // Gestão de Vacinas
+  async createVaccine(data) {
+    return this.request('/vaccines', {
+      method: 'POST',
+      body: data
+    });
+  }
+
+  async deleteVaccine(id) {
+    return this.request(`/vaccines/${id}`, {
+      method: 'DELETE'
+    });
+  }
+
+  // Gestão de Estoque (Lotes)
+  async createVaccineLot(data) {
+    return this.request('/lotes/create', {
+      method: 'POST',
+      body: data
+    });
+  }
+
+  async deleteVaccineLot(id) {
+    return this.request(`/lotes/delete/${id}`, {
+      method: 'DELETE'
+    });
+  }
 }
 
 export default new ApiService();
