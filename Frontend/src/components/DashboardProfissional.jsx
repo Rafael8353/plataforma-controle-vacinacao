@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import api from '../services/api';
 import './Dashboard.css';
 import AplicarVacina from './AplicarVacina';
-import GestaoEstoque from './GestaoEstoque'; // Certifique-se que o arquivo existe
-import GestaoVacinas from './GestaoVacinas'; // Certifique-se que o arquivo existe
+import GestaoEstoque from './GestaoEstoque'; 
+import GestaoVacinas from './GestaoVacinas'; 
 
 function DashboardProfissional({ userToken, onLogout }) {
   const [userName, setUserName] = useState('');
@@ -15,12 +15,9 @@ function DashboardProfissional({ userToken, onLogout }) {
   });
   const [loading, setLoading] = useState(true);
   
-  // ▼▼▼ MUDANÇA PRINCIPAL: Controle de navegação por string ▼▼▼
-  // Opções: 'dashboard', 'aplicar', 'estoque', 'vacinas'
   const [activeView, setActiveView] = useState('dashboard');
 
   useEffect(() => {
-    // Só carrega dados do dashboard se estiver na visualização principal
     if (activeView === 'dashboard') {
         loadDashboardData();
     }
@@ -61,8 +58,6 @@ function DashboardProfissional({ userToken, onLogout }) {
       setLoading(false);
     }
   };
-
-  // ▼▼▼ RENDERIZAÇÃO CONDICIONAL DAS TELAS ▼▼▼
 
   if (activeView === 'aplicar') {
     return <AplicarVacina onBack={() => setActiveView('dashboard')} />;

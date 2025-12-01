@@ -19,7 +19,6 @@ function DashboardPaciente({ userToken, onLogout }) {
   const [certificateError, setCertificateError] = useState(null);
   const [generatingCertificate, setGeneratingCertificate] = useState(false);
 
-  // ▼▼▼ 2. ESTADO PARA NAVEGAÇÃO ▼▼▼
   const [showHistory, setShowHistory] = useState(false);
 
   useEffect(() => {
@@ -92,7 +91,6 @@ function DashboardPaciente({ userToken, onLogout }) {
     document.body.removeChild(link);
   };
 
-  // ▼▼▼ 3. RENDERIZAÇÃO CONDICIONAL DA CARTEIRA ▼▼▼
   if (showHistory) {
     return <CarteiraVacinacao onBack={() => setShowHistory(false)} />;
   }
@@ -133,7 +131,6 @@ function DashboardPaciente({ userToken, onLogout }) {
             </div>
           </div>
 
-          {/* ▼▼▼ 4. CLIQUE AQUI PARA ABRIR O HISTÓRICO ▼▼▼ */}
           <div 
             className="stat-card" 
             onClick={() => setShowHistory(true)}
@@ -166,7 +163,6 @@ function DashboardPaciente({ userToken, onLogout }) {
           </div>
         </div>
 
-        {/* ... (Resto do código do Certificado e Próximas vacinas igual) ... */}
         {error && <div className="error-banner"><p>{error}</p></div>}
 
         <div className="section">
@@ -184,7 +180,6 @@ function DashboardPaciente({ userToken, onLogout }) {
         </div>
 
         {showCertificate && certificate && (
-            // ... (Seu código do modal do certificado mantido aqui) ...
             <div className="certificate-modal-overlay" onClick={() => setShowCertificate(false)}>
             <div className="certificate-modal" onClick={(e) => e.stopPropagation()}>
               <div className="certificate-modal-header">

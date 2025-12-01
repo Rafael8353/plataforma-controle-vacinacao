@@ -8,18 +8,14 @@ function AplicarVacina({ onBack }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   
-  // Passo 1: Paciente
   const [cpfSearch, setCpfSearch] = useState('');
   const [patient, setPatient] = useState(null);
 
-  // Passo 2: Vacina e Lote
   const [lots, setLots] = useState([]);
   const [selectedLotId, setSelectedLotId] = useState('');
 
-  // Estado final
   const [success, setSuccess] = useState(false);
 
-  // Carregar lotes disponíveis ao entrar no passo 2
   useEffect(() => {
     if (step === 2) {
       loadAvailableLots();
@@ -29,7 +25,6 @@ function AplicarVacina({ onBack }) {
   const loadAvailableLots = async () => {
     try {
       const allLots = await api.getVaccineLots({ disponivel: true });
-      // Filtrar apenas lotes com quantidade > 0 e não vencidos
       setLots(allLots || []);
     } catch (err) {
       setError('Erro ao carregar lotes de vacina.');
@@ -41,8 +36,6 @@ function AplicarVacina({ onBack }) {
     setLoading(true);
     setError(null);
     try {
-      // Precisamos implementar/assumir esse endpoint no backend: GET /users?cpf=...
-      // Ou usar um endpoint que você já tenha. Vou assumir que api.getUserByCpf existe
       const foundPatient = await api.getUserByCpf(cpfSearch); 
       
       if (foundPatient && foundPatient.role === 'patient') {
@@ -76,11 +69,8 @@ function AplicarVacina({ onBack }) {
         patient_id: patient.id,
         vaccine_lot_id: selectedLot.id, // ou vacina_id e lote, depende do seu backend
         application_date: new Date().toISOString()
-        // Seu backend pode pegar o professional_id direto do token
       };
 
-      // Endpoint que precisamos criar no backend (Ex: POST /vaccination-records)
-      // Ou se for o CRUD de aplicação que ainda vamos fazer
       await api.registerVaccination(payload);
       
       setSuccess(true);
@@ -94,7 +84,6 @@ function AplicarVacina({ onBack }) {
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
 
-  // Renderização do Conteúdo de cada passo
   const renderStepContent = () => {
     if (success) {
       return (

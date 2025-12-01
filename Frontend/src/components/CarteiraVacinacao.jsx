@@ -7,9 +7,6 @@ function CarteiraVacinacao({ onBack }) {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  
-  // Se você usar react-router, troque onBack por navigate
-  // const navigate = useNavigate();
 
   useEffect(() => {
     loadHistory();
@@ -18,7 +15,6 @@ function CarteiraVacinacao({ onBack }) {
   const loadHistory = async () => {
     try {
       setLoading(true);
-      // Usa a mesma rota que você já criou no backend
       const data = await api.getPatientHistory();
       setHistory(data || []);
     } catch (err) {

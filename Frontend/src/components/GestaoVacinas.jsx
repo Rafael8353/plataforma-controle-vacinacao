@@ -39,19 +39,15 @@ function GestaoVacinas({ onBack }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // 1. Criar o payload mapeando para os nomes que o Banco de Dados exige
       const payload = {
         name: formData.name,
         manufacturer: formData.manufacturer,
-        // CORREÇÃO 1: Mapear 'doses' do form para 'dose_info' do banco
         dose_info: parseInt(formData.doses, 10), 
-        // CORREÇÃO 2: Garantir que é número
         interval: parseInt(formData.interval, 10) 
       };
 
       console.log('Enviando:', payload); // Para debug
 
-      // CORREÇÃO 3: Enviar 'payload' (que tratamos acima), e NÃO 'formData'
       await api.createVaccine(payload);
       
       setShowModal(false);
